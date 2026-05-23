@@ -1,5 +1,7 @@
 
-# Foundational Concepts
+# 01-Defining Business Risk
+
+## Foundational Definitions
 
 ### Asset
 the thing of value we're protecting (the customer database, the server, the reputation)
@@ -10,42 +12,28 @@ A weakness in the asset or its protections (unpatched software, weak password po
 ### Risk
 Risk = Likelihood × Impact. the likelihood that a threat exploits a vulnerability, times the impact on the asset.
 
-## CIA Security Triad 
+### Vulnerability v/s Exploit
+Now to not confuse the two and use the terms interchangeably it's important to understand the basic level difference between them right now.
+A vulnerability is the weakness itself. the error or flaw in the system that already exists.
+An exploit on the other hand is the weaponized tool or technique to take advantage of said weakness.
 
-1) **Confidentiality** - Ensure data is only accessible to those who have the authority to view it. Unauthorized access can lead to data breaches.
-2) **Integrity** - Ensures data remains unaltered and genuine. Without integrity, systems and data can't be trusted.
-3) **Availability** - Ensurers system, applications and data are available and operational when needed.
+### Assessing a an example 
 
-# Threat Actors 
+`Your homelab has a server exposed to the internet running an old version of some service with a known critical vulnerability. The server hosts nothing but a static webpage you made for fun — no data, no credentials, nothing connected to your real network.`
 
-## How to Categorize Different Types of Threat Actors
-we can attribute different types of threat actors to different kinds of categories and where they lie on the scale in those particular categories.
-these categories :-
-1) **Are they an INTERNAL or an EXTERNAL threat**
-2) **Are they someone on a budget or do they have a state sponsoring them**
-3) **How many people can they utilize for this**
-4) **How sophisticated, are they trying to be low and slow not get caught doing what they are or are they just doing a drive by attack**
-ranking them across these categories can tell us their capabilities, are they a low/medium/high threat.
+Let's analyse all 4 of our terms here and make a judgment of low or high risk.
 
- a) "script kiddies" - unskilled hackers who use readily available hacking tools from the internet. they're not skilled(enough to do long,elaborate and persistent attacks) but can still cause damage. --- { External, on a budget, normally just one person, not sophisticated.}
+**Asset** - The asset here is nothing but the data on the static site hosted on the server, and the servers IP. since it's explicitly stated that the server is isolated we don't have to worry about *what all it's connected to.*
 
-b) "hacktivists" - hack for a cause. want to promote a social or political agenda. { external, low funding,resources low,sophistication low}
+(A bit of a tangent - What i mentioned above "what all it's connected to" is a separate type of condition you need to think of in cases where the vulnerable server might be connected to something else of value even though there isn't anything on it itself.  "what else can this thing reach from here?" is a very valid question to ask and is called thinking about **Lateral Movement** and **Blast Radius**.)
 
-c)"Insider Threats" - internal employee or member of the company or organization. their intimate knowledge makes them dangerous. {Internal,high (company resources), low fudning, sophistication depends on what they actually do}
+**Threat** - The threat is anyone aware of this vulnerability and using an exploit targeted for it to find anything vulnerable on the network
 
-d)"shadow IT" - when employees use a unauthorized software on company resources that can lead to machines or networks becoming vulnerable through there. {Internal,high resources, not so low funding, sophistication depends on where they are able to infiltrate}
+**Vulnerability** - The initial flaw in the service's old version.
 
-    what's and **application allow list** ?
-    a list of allowed apps/software that can be installed and used. this           minimizes malicious entities, hence minimizing vulnerabilities.
+**Risk** - Since we stated Risk = Likelihood × Impact lets look at both the terms. The likelihood of something like this being hit is high. The reason being, since the vulnerability is public knowledge there is a high chance there are threat actors who've made automated scripts that run looking for this kind of an vulnerable server on a network and scrape whatever they can find inside. The impact of this is near zero, since we've stated it just hosts a static site and nothing else the asset getting in someone else hand dose not impact it all that much. so the final verdict, **high likelihood x near zero impact = low risk**.
 
-e) Advanced Persistent Threats (APTs) - Attackers who are highly skilled, well financed, and have a lot of time on their hands. often backed by nation-states. attacks are prolonged,sophisticated and stealthy. {external,high resource,high funding,high sophistication,high capability}
-  they can be from organised crime, nation-states, rival company 
-
-# Threat Intelligence
-
-
-
-
+# 02-Threat Actors
 
 
 
