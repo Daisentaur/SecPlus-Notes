@@ -25,7 +25,7 @@ Let's analyse all 4 of our terms here and make a judgment of low or high risk.
 
 **Asset** - The asset here is nothing but the data on the static site hosted on the server, and the servers IP. since it's explicitly stated that the server is isolated we don't have to worry about *what all it's connected to.*
 
-(A bit of a tangent - What i mentioned above "what all it's connected to" is a separate type of condition you need to think of in cases where the vulnerable server might be connected to something else of value even though there isn't anything on it itself.  "what else can this thing reach from here?" is a very valid question to ask and is called thinking about **Lateral Movement** and **Blast Radius**.)
+(A bit of a tangent - What i mentioned above "what all it's connected to" is a separate type of condition you need to think of in cases where the vulnerable server might be connected to something else of value even though there isn't anything on it itself.  "what else can this thing reach from here?" is a very valid question to ask, _a low-value asset can become high-risk purely because of what it gives access to_ and is called thinking about **Lateral Movement** and **Blast Radius**.)
 
 **Threat** - The threat is anyone aware of this vulnerability and using an exploit targeted for it to find anything vulnerable on the network
 
