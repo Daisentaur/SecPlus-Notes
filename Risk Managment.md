@@ -2,13 +2,13 @@
 # Foundational Concepts
 
 ### Asset
-anything we want to protect
+the thing of value we're protecting (the customer database, the server, the reputation)
 ### Threats
-Anything or anyone that can cause harm to our assets
+Anything or anyone that can cause harm to our assets. A potential cause of harm.(a ransomware crew, a careless employee, a flood in the data center).
 ### Vulnerabilities 
-Weaknesses or gaps that allow threats to access our assets 
+A weakness in the asset or its protections (unpatched software, weak password policy).
 ### Risk
-it's the potential for a threat to exploit a vulnerability and cause harm to our assets
+Risk = Likelihood × Impact. the likelihood that a threat exploits a vulnerability, times the impact on the asset.
 
 ## CIA Security Triad 
 
