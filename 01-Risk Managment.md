@@ -17,7 +17,7 @@ Now to not confuse the two and use the terms interchangeably it's important to u
 A vulnerability is the weakness itself. the error or flaw in the system that already exists.
 An exploit on the other hand is the weaponized tool or technique to take advantage of said weakness.
 
-### Assessing a an example 
+### Assessing an example 
 
 `Your homelab has a server exposed to the internet running an old version of some service with a known critical vulnerability. The server hosts nothing but a static webpage you made for fun — no data, no credentials, nothing connected to your real network.`
 
