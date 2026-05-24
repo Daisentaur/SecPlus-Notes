@@ -63,6 +63,43 @@ Some common named categories are -
 
 # 03-Threat Intelligence 
 
+In one line, threat intelligence is information about threats that is actionable. So much data in the world, even about attacks and threats but filtering all that noise to get valuable usable information for yourself by collecting and analyzing the data correctly so you can use it to adjust your defenses accordingly is the point of threat intelligence.
+
+### Common Sources 
+* **OSINT (Open Source Intelligence)** - freely and readily available public information. Something anyone can access. Includes things like social media, public government records, security blogs, news, vendor reports etc. They're cheap and abundant but because of that abundance you need to filter noise and verify information always.
+* **Closed / proprietary / commercial feeds** - A paid vendor for curated, analyzed intel. ex - CrowdStrike,Mandiant. higher quality but as they are a service they obviously cost money.
+* **ISACs ( Information Sharing and Analysis Centers)** -  industry specific sharing groups. Members share threat data with each other because one target can reveal possible next targets and this data can help prevent industry wide damage. Finance, Banks, Healthcare every industry has their own. 
+* **The dark web/underground forums** - monitoring platforms where actors actually trade tools, sell data etc. can reveal a lot of information about recent targets etc.
+* **Government Sources** - some govt. agencies roll out notices, alerts and indicators.
+
+### Two approaches to threat intelligence 
+Now there are two major types of "approaches" threat intelligence systems are based on. Since we want to look for suspicious patterns as a way of filtering noise and finding relevant information the things we focus on change how we work.
+
+* **IOC (indicator of Compromise)** - a specific, concrete artifact that signals an attack. malicious IP address, a file hash of a known malware, suspicious domain name. these are atoms of threat intel, this is what you feed in detection systems to say "if you see this flag that shit immediately" .
+* **TTPs(Tactics,Techniques and Procedures)** - this is more of a behavioral observation. Instead of actual items that can been compromised, patterns of how an actor attacks is noticed. example - "something just created a scheduled task _and then_ started beaconing at a fixed interval." we can see two segments here, (a) scheduled task creation - a way to avoid getting logged out of the machine upon reboot and (b) beaconing at fixed intervals - Probably a C2 server (command and control server) that the machine is pinging. the fixed intervals make it recognizable cause actual human pings are random. so even if the IP it pings change or the scheduled task created changes the pattern can be looked for and th attacked can be found even if they ditch their technical infrastructure. This method is based on detecting methodology.
+
+**An IOC is brittle. A TTP is durable.** An actor can change their infra at any moment and continue with their attacks. the actual items they've used doesn't matter as much as why they used it. so flagging just the items and how why and how often puts IOC based systems at a disadvantage of being broken sooner than TTP based systems.
+
+### Diving Into an Example
+
+I'm going to try and dive into a TTPs approach for a particular pattern to show how to actually technically flag methodology.
+We'll use the previous example, "something just created a scheduled task _and then_ started beaconing at a fixed interval."
+
+In this threat pattern there are two things
+
+(a) Persistence -- "created a scheduled task" 
+	If you've broken into the machine, from the attackers POV you want to stay there. your connection initially is fragile a simple reboot or power off might kick you off the machine and you'll have to break in all over again. to avoid this a "run on start up" type program can be made by the actor to regain connection to machine. This is persistence, they want to stay their.
+	 How to actually checked for a "run on startup" program that the actor might've added to the system ?
+	 1. **Point-in-time comparison** - take a know good baseline of what scheduled tasks should exist on the machine. and periodically just check the current list against that list, and flag new items in that list.
+	 2. **Event based detection** - the OS _itself_ generates a log event the instant a scheduled task is created. so instead of checking against a list periodically just subscribe to a change in that log, so any newly created scheduled task can be flagged immediately no delay in flagging due to when the checks happen.
+
+	  
+(b) Communication to a C2 -- "Beaconing to its command server every 60 minutes" 
+	 Once an actor is in your machine they'd want to control it remotely, send it commands and pull data from it etc. For this an attacker can own a C2 server(command-and-control) server on the internet. the malware on the machine talks to the C2 server to receive orders.
+	 A question arises here, who calls who ? in a real case the malware keeps periodically asking the C2 is they have any instructions for them. Now this periodic asking is the beaconing every 60 minutes in the example statement that makes this behavior from the attacker stand out.
+
+# 04-Risk Management Concepts 
+
 
 
 
