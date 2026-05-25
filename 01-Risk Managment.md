@@ -122,7 +122,7 @@ Since this is a short chapter, other than the 4 actual terms and what they mean 
 
 1. Acceptance of a situation should always be **deliberate,documented,authorized decision. it should not come from forgetting about it**. 
 2. in **Transfer** the **only the financial impact is moved** to someone else. the likelihood and the rest of the impact stays the same. insurance does not mean security. 
-
+3. When you mitigate a risk, you almost never reduce it to zero. **Whatever's left over after your controls is called residual risk**,risk that remains after you've done the mitigation. 
 
 
 
