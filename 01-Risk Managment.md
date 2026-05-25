@@ -114,6 +114,15 @@ How this can vary by risk size.
 * **Catastrophic risk you can't reduce?** avoid it entirely
 * **Moderate risk with cheap fix?** mitigate
 
+This isn't a sure shot list to follow just generally how things end up being looked at. A human brain needs to assess the risk and decide what to do out of these 4 always whenever something comes up. 
+
+### Two things worth remembering 
+
+Since this is a short chapter, other than the 4 actual terms and what they mean two more things that should be kept in mind.
+
+1. Acceptance of a situation should always be **deliberate,documented,authorized decision. it should not come from forgetting about it**. 
+2. in **Transfer** the **only the financial impact is moved** to someone else. the likelihood and the rest of the impact stays the same. insurance does not mean security. 
+
 
 
 
