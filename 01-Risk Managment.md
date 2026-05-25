@@ -102,8 +102,12 @@ In this threat pattern there are two things
 
 Once a risk is assessed it a decision needs to be made about what is to be done about said risk. This decision largely depends on the size of the risk which we can understand using the risk = likelihood x impact.
 
-This risk assessment is an important step before this decision. There are four foundational answers depending on different risk size's and variation in company ideology. 
+This risk assessment is an important step before this decision. There are four foundational answers depending on different risk size's and variation in company ideology.
 
+* **Mitigate** - reduce likelihood/impact. 
+* **Transfer** - shift the consequence to someone else. like insurance or external vendors
+* **Avoid** - stop doing the risky activity entirely. stop flying if you're worried about plane crashes type.
+* **Accept** - consciously,formally choose to live with it. understand the impact of it and choose not to do anything about it.
 
 
 
