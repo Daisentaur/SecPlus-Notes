@@ -109,6 +109,11 @@ This risk assessment is an important step before this decision. There are four f
 * **Avoid** - stop doing the risky activity entirely. stop flying if you're worried about plane crashes type.
 * **Accept** - consciously,formally choose to live with it. understand the impact of it and choose not to do anything about it.
 
+How this can vary by risk size.
+* **Tiny risk that's expensive to fix?** accept it
+* **Catastrophic risk you can't reduce?** avoid it entirely
+* **Moderate risk with cheap fix?** mitigate
+
 
 
 
