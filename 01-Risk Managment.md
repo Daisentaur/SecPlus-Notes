@@ -98,7 +98,11 @@ In this threat pattern there are two things
 	 Once an actor is in your machine they'd want to control it remotely, send it commands and pull data from it etc. For this an attacker can own a C2 server(command-and-control) server on the internet. the malware on the machine talks to the C2 server to receive orders.
 	 A question arises here, who calls who ? in a real case the malware keeps periodically asking the C2 is they have any instructions for them. Now this periodic asking is the beaconing every 60 minutes in the example statement that makes this behavior from the attacker stand out.
 
-# 04-Risk Management Concepts 
+# 04-Risk Management Concepts
+
+Once a risk is assessed it a decision needs to be made about what is to be done about said risk. This decision largely depends on the size of the risk which we can understand using the risk = likelihood x impact.
+
+This risk assessment is an important step before this decision. There are four foundational answers depending on different risk size's and variation in company ideology. 
 
 
 
