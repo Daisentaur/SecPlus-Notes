@@ -28,3 +28,7 @@ Notes follow the course chapter structure. Each file works through the concepts 
 ## A note on these
 
 If something here is wrong, it's because I'm still learning — corrections welcome via an issue, or you can mail me directly.
+
+## Status
+
+I'm done with the course now, edits will be made for a short while. then this repo will most likely become dormant.
