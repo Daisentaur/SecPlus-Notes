@@ -465,3 +465,181 @@ Event IDs worth recognising:
 * New accounts, new services, new scheduled tasks.
 * **Gaps in the logs, or a cleared log (Event ID 1102).** Absence of data is data.
 
+## 5.12 Centralized Logging
+
+### Why it's non-negotiable
+
+Four reasons, and the first is the one that matters most:
+
+1. **An attacker with admin on a host can delete that host's logs.** If the only copy is local, your evidence is under the control of the person you're investigating. Shipping logs off-host in real time means they have to compromise the log server too, which is a second and much harder step.
+2. **Correlation.** An attack spans a firewall, a VPN concentrator, a domain controller and a file server. No single log tells the story; only something looking across all of them does.
+3. **Retention** beyond what a single host can hold.
+4. **Availability** — if the host is wiped or dies, you still have its history.
+
+### The stack
+
+* **syslog / rsyslog / syslog-ng** - the classic protocol and daemons. UDP 514 traditionally (fire-and-forget, lossy), TCP 514 or **TLS 6514** for reliability and encryption.
+* **SIEM** - Splunk, QRadar, Sentinel, Elastic, Wazuh, Graylog. Collect, normalise, correlate, alert.
+* **Agents** - Filebeat, Fluentd, NXLog, Winlogbeat for Windows events.
+
+### SIEM
+
+**Security Information and Event Management.** The value is entirely in **correlation**. A failed VPN login, a firewall allow, and a large outbound transfer are individually unremarkable; in sequence from one identity within five minutes, that's exfiltration.
+
+Two practical realities worth being honest about:
+
+* **Pricing is usually by ingest volume**, so what you choose *not* to collect becomes a security decision made on cost grounds. That's an uncomfortable but real constraint.
+* **Tuning is the job.** An untuned SIEM emits thousands of alerts daily, analysts stop reading them, and you've spent a fortune to be exactly as blind as before — but with an audit trail proving you were warned. **Alert fatigue is a security vulnerability**, not an annoyance.
+
+### Related sources
+
+* **SNMP** for device telemetry — **use v3**, since v1/v2c send community strings in cleartext.
+* **NetFlow / sFlow / IPFIX** — flow metadata rather than payloads. Cheap, and it keeps working when everything is encrypted.
+* **SOAR** — automation layer on top: enrich the alert, open the ticket, block the IP, isolate the host.
+
+### Getting it right
+
+* **NTP everywhere.** Correlation across systems is impossible if clocks disagree, and skewed timestamps undermine evidence.
+* **Protect the log server** — separate credentials, restricted access, ideally append-only storage.
+* **Monitor the pipeline itself.** A log source that silently stopped reporting three weeks ago is a blind spot you don't know you have.
+
+## 5.13 Cybersecurity Benchmark Tools
+
+Automated checking of a system against a secure configuration standard — the "are we actually configured the way we said we'd be" question from chapter 1.
+
+* **CIS Benchmarks** - prescriptive hardening guides per OS/platform, with **Level 1** (safe baseline) and **Level 2** (stricter, may break functionality) profiles.
+* **CIS-CAT** - the tool that scores a system against those benchmarks.
+* **DISA STIGs** - the US DoD equivalent, generally stricter.
+* **SCAP (Security Content Automation Protocol)** - the standard *format* for expressing all this so tools interoperate. Components include **CVE** (vulnerability IDs), **CCE** (configuration IDs), **CPE** (platform naming), **CVSS** (scoring), **OVAL** (assessment logic) and **XCCDF** (checklists).
+* **OpenSCAP / `oscap`** - the open-source scanner that consumes SCAP content.
+* **Lynis** - lightweight Linux audit script, good for a quick look.
+* **Microsoft Security Compliance Toolkit** - Windows baselines as GPOs.
+
+```bash
+# list available profiles
+oscap info /usr/share/xml/scap/ssg/content/ssg-ubuntu2204-ds.xml
+
+# evaluate against a profile and produce a report
+sudo oscap xccdf eval \
+  --profile cis_level1_server \
+  --results results.xml --report report.html \
+  /usr/share/xml/scap/ssg/content/ssg-ubuntu2204-ds.xml
+```
+
+### The real point: configuration drift
+
+Establishing a baseline is the easy part. **Systems don't stay configured** — emergency changes, software updates resetting settings, someone loosening a permission to make something work at 2am. Six months later nothing matches the baseline and nobody knows.
+
+So benchmark tooling is only valuable if it runs **continuously**, not once at build time. That's the difference between "we hardened it" and "it is hardened", which is the maintain step of the three-step hardening lifecycle.
+
+**And a caveat:** a benchmark score is not a security score. Passing CIS Level 1 with a vulnerable application on top of it means very little. Compliance and security overlap; they're not the same thing.
+
+## 5.14 Lab — Configuring Linux Log Forwarding
+
+Forwarding logs from a client to a central rsyslog server.
+
+**On the server** (`/etc/rsyslog.conf`) — enable a listener:
+
+```
+# TCP is preferable to UDP: reliable delivery
+module(load="imtcp")
+input(type="imtcp" port="514")
+
+# store received logs per sending host
+$template RemoteLogs,"/var/log/remote/%HOSTNAME%/%PROGRAMNAME%.log"
+*.* ?RemoteLogs
+& stop
+```
+
+**On the client** (`/etc/rsyslog.d/60-forward.conf`):
+
+```
+# @  = UDP (lossy)
+# @@ = TCP (reliable)
+*.* @@192.168.1.50:514
+
+# queue on disk if the server is unreachable, so logs aren't lost
+$ActionQueueType LinkedList
+$ActionQueueFileName fwdqueue
+$ActionResumeRetryCount -1
+$ActionQueueSaveOnShutdown on
+```
+
+```bash
+sudo systemctl restart rsyslog
+logger "test message from client"          # generate a test entry
+sudo ss -tulpn | grep 514                  # confirm the server is listening
+```
+
+### Things worth noting
+
+* **`@@` (TCP) over `@` (UDP).** UDP silently drops messages under load, which means the log that mattered is the one you lost.
+* **The disk queue config is the important part.** Without it, logs generated while the server is unreachable are gone forever — and "the log server was briefly down" is a very convenient window for an attacker.
+* **Encrypt it in production.** Plain 514 sends logs in cleartext across the network, and logs contain usernames, hostnames, paths and sometimes secrets. TLS on 6514 with certificates is the real-world configuration.
+* **Firewall the log server** so only known senders can reach it — otherwise anyone can inject fabricated log entries, which poisons your evidence.
+
+## 5.15 Lab — Linux Shell Script
+
+A small triage script pulling together most of this chapter:
+
+```bash
+#!/bin/bash
+# quick host triage — who's here, what's listening, what failed
+set -euo pipefail
+
+echo "=== host: $(hostname) at $(date -Is) ==="
+
+echo -e "\n--- logged in now ---"
+who
+
+echo -e "\n--- listening sockets ---"
+ss -tulpn 2>/dev/null | grep LISTEN
+
+echo -e "\n--- UID 0 accounts (should only be root) ---"
+awk -F: '$3 == 0 {print $1}' /etc/passwd
+
+echo -e "\n--- last 10 failed SSH attempts ---"
+grep "Failed password" /var/log/auth.log 2>/dev/null | tail -10 || echo "none found"
+
+echo -e "\n--- top 5 source IPs by failed attempts ---"
+grep "Failed password" /var/log/auth.log 2>/dev/null \
+  | grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}' \
+  | sort | uniq -c | sort -rn | head -5 || echo "none found"
+
+echo -e "\n--- world-writable files in /etc ---"
+find /etc -type f -perm -002 2>/dev/null || true
+```
+
+The last three blocks are the security-interesting ones. The **top-source-IP count** turns a wall of log lines into a ranked answer to "who is attacking me", which is the whole idea behind SIEM correlation done manually. The **UID 0 check** catches the backdoor account from chapter 4.9. And **world-writable files in `/etc`** is a privilege-escalation check — the same reasoning credhound applies, where the permission bits determine the severity.
+
+## 5.16 Lab — Nmap
+
+```bash
+# 1. what's alive on my lab network
+nmap -sn 192.168.56.0/24
+
+# 2. what's open on the target
+sudo nmap -sS -p- -T4 192.168.56.101 -oA fullports
+
+# 3. what's actually running on those ports
+sudo nmap -sV -sC -p 22,80,443,3306 192.168.56.101 -oA services
+
+# 4. check for known issues
+nmap --script vuln -p 80,443 192.168.56.101
+```
+
+Running this against my own machine was the useful part, because the honest result was **services listening that I had no idea were running**. That is precisely the asset management point from chapter 1 — you cannot protect, patch or monitor what you don't know exists — and it's a much more convincing lesson when it's your own box.
+
+The follow-up is the hardening loop from chapter 6: for each open port, either justify it or turn it off. **A service that isn't running cannot be exploited by any vulnerability found in it in future**, which makes "disable what you don't use" the highest-leverage single action available.
+
+---
+
+## Chapter 5 — what I'd take away
+
+* Attacker activity and detection both live at the command line and in logs. Not knowing the CLI means not being able to read the evidence.
+* `ss -tulpn` and `netstat -ano` answer the most important triage question: what's listening, and who owns it.
+* PowerShell is the model dual-use tool — you can't remove it, so you log and constrain it instead.
+* Scan aggressiveness is itself a detection risk, and scanning without authorisation is illegal, not cheeky.
+* Encryption means captures show metadata, not content — and metadata alone still exposes beaconing.
+* Centralized logging exists mainly because an attacker with admin can delete local logs.
+* Benchmarks only matter if they run continuously; systems drift.
